@@ -10,6 +10,10 @@ setup(
     name='madrona-features',
     version='0.0.1',
     packages=['features'],
+    install_requires=[
+        'mapnik',
+        'manipulators',
+    ],
     include_package_data=True,
     license='TBD',
     description='Visualizer for Marine Planner',
