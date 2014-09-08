@@ -1,5 +1,6 @@
-from django.conf.urls.defaults import *
-from madrona.common.utils import get_logger, get_class, enable_sharing
+# TODO: Code doesn't belong in __init__
+
+import logging
 from django.template.defaultfilters import slugify
 from django.template import loader, TemplateDoesNotExist
 from madrona.features.forms import FeatureForm
@@ -15,7 +16,57 @@ import json
 registered_models = []
 registered_model_options = {}
 registered_links = []
-logger = get_logger()
+logger = logging.getLogger('madrona.features')
+
+
+# Two functions brought from madrona.common.utils so we don't have a dependency
+# on that module anymore. 
+# TODO: Find a home for them.
+# TODO: Refactor so they don't import modules
+
+def get_class(path):
+    from django.utils import importlib
+    module, dot, cls = path.rpartition('.')
+    m = importlib.import_module(module)
+    return m.__getattribute__(cls)
+ 
+def enable_sharing(group=None):
+    """
+    Give group permission to share models 
+    Permissions are attached to models but we want this perm to be 'global'
+    Fake it by attaching the perm to the Group model (from the auth app)
+    We check for this perm like: user1.has_perm("auth.can_share_features")
+    """
+    from django.contrib.auth.models import Permission, Group
+    from django.contrib.contenttypes.models import ContentType
+
+    try:
+        p = Permission.objects.get(codename='can_share_features')
+    except Permission.DoesNotExist:
+        gct = ContentType.objects.get(name="group")
+        p = Permission.objects.create(codename='can_share_features',name='Can Share Features',content_type=gct)
+        p.save()
+
+    # Set up default sharing groups
+    for groupname in settings.SHARING_TO_PUBLIC_GROUPS:
+        g, created = Group.objects.get_or_create(name=groupname)
+        g.permissions.add(p)
+        g.save()
+
+    for groupname in settings.SHARING_TO_STAFF_GROUPS:
+        g, created = Group.objects.get_or_create(name=groupname)
+        g.permissions.add(p)
+        g.save()
+
+    if group:
+        # Set up specified group
+        group.permissions.add(p)
+        group.save()
+    return True
+
+
+
+
 
 class FeatureConfigurationError(Exception):
     pass
