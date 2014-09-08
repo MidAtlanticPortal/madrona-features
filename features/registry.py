@@ -14,7 +14,7 @@ import json
 registered_models = []
 registered_model_options = {}
 registered_links = []
-logger = logging.getLogger('madrona.features')
+logger = logging.getLogger('features')
 
 
 # Two functions brought from madrona.common.utils so we don't have a dependency
@@ -80,14 +80,14 @@ class FeatureOptions:
     def __init__(self, model):
 
         # Import down here to avoid circular reference
-        from madrona.features.models import Feature, FeatureCollection    
+        from features.models import Feature, FeatureCollection    
 
         # call this here to ensure that permsissions get created
         #enable_sharing()
 
         if not issubclass(model, Feature):
             raise FeatureConfigurationError('Is not a subclass of \
-madrona.features.models.Feature')
+features.models.Feature')
 
         self._model = model
         name = model.__name__
@@ -169,7 +169,7 @@ not a string path." % (name,))
         # Add a copy method unless disabled
         if self.enable_copy:
             self.links.insert(0, edit('Copy', 
-                'madrona.features.views.copy', 
+                'features.views.copy', 
                 select='multiple single',
                 edits_original=False))
 
@@ -179,7 +179,7 @@ not a string path." % (name,))
         # TODO when the share_form view takes multiple instances
         #  we can make sharing a generic link 
         #self.links.insert(0, edit('Share', 
-        #    'madrona.features.views.share_form', 
+        #    'features.views.share_form', 
         #    select='multiple single',
         #    method='POST',
         #    edits_original=True,
@@ -187,7 +187,7 @@ not a string path." % (name,))
 
         # Add a multi-delete generic link
         self.links.insert(0, edit('Delete', 
-            'madrona.features.views.multi_delete', 
+            'features.views.multi_delete', 
             select='multiple single',
             method='DELETE',
             edits_original=True,
@@ -198,7 +198,7 @@ not a string path." % (name,))
         export_png = getattr(self._options, 'export_png', True)
         if export_png:
             self.links.insert(0, alternate('PNG Image', 
-                'madrona.staticmap.views.staticmap_link', 
+                'staticmap.views.staticmap_link', 
                 select='multiple single',
                 method='GET',
             ))
@@ -207,7 +207,7 @@ not a string path." % (name,))
         export_geojson = getattr(self._options, 'export_geojson', True)
         if export_geojson:
             self.links.insert(0, alternate('GeoJSON', 
-                'madrona.features.views.geojson_link', 
+                'features.views.geojson_link', 
                 select='multiple single',
                 method='GET',
             ))
@@ -271,10 +271,10 @@ not a string path." % (name,))
         # Add a kml link by default
         if self.enable_kml:
             self.links.insert(0,alternate('KML',
-                'madrona.features.views.kml',
+                'features.views.kml',
                 select='multiple single'))
             self.links.insert(0,alternate('KMZ',
-                'madrona.features.views.kmz',
+                'features.views.kmz',
                 select='multiple single'))
 
         for link in self.links:
@@ -319,7 +319,7 @@ not a string path." % (name,))
                 raise FeatureConfigurationError(
                         "Error trying to import module %s" % vc) 
 
-            from madrona.features.models import Feature
+            from features.models import Feature
             if not issubclass(vc_class, Feature):
                 raise FeatureConfigurationError(
                         "%r is not a Feature; can't be a child" % vc) 
@@ -369,7 +369,7 @@ Could not import %s.\n%s" % (self._model.__name__, self.form, e))
         if not issubclass(klass, FeatureForm):
             raise FeatureConfigurationError(
                 "Feature class %s's form is not a subclass of \
-madrona.features.forms.FeatureForm." % (self._model.__name__, ))
+features.forms.FeatureForm." % (self._model.__name__, ))
 
         return klass
 
@@ -758,7 +758,7 @@ def get_collection_models():
     Utility function returning models for 
     registered and valid FeatureCollections
     """
-    from madrona.features.models import FeatureCollection    
+    from features.models import FeatureCollection    
     registered_collections = []
     for model in registered_models:
         if issubclass(model,FeatureCollection):
@@ -775,7 +775,7 @@ def get_feature_models():
     Utility function returning models for 
     registered and valid Features excluding Collections
     """
-    from madrona.features.models import Feature, FeatureCollection
+    from features.models import Feature, FeatureCollection
     registered_features = []
     for model in registered_models:
         if issubclass(model,Feature) and not issubclass(model,FeatureCollection):
