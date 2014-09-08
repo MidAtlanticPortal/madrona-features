@@ -6,10 +6,10 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.gis.geos import fromstr
 from django.conf import settings 
-from madrona.manipulators.manipulators import display_kml
 
 class ShapeInput(forms.HiddenInput):
     def render(self, name, value, attrs=None):
+        from madrona.manipulators.manipulators import display_kml
         from madrona.features.models import PolygonFeature, PointFeature, LineFeature
         model = self.form_instance.Meta.model
         if issubclass(model, PolygonFeature):
