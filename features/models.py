@@ -5,16 +5,23 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.http import HttpResponse
 from django.utils.html import escape
-from madrona.features.managers import ShareableGeoManager
-from madrona.features.forms import FeatureForm
-from madrona.features import get_model_options
-from madrona.common.utils import asKml, clean_geometry, ensure_clean
-from madrona.common.utils import get_logger, get_class, enable_sharing
-from madrona.manipulators.manipulators import manipulatorsDict, NullManipulator
+from features.managers import ShareableGeoManager
+from features.forms import FeatureForm
+from features import get_model_options
+import logging
+from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
 import mapnik
 
-logger = get_logger()
+logger = logging.getLogger('features.models')
+
+GEOMETRY_CLIENT_SRID = 'Nothing'
+GEOMETRY_DB_SRID = 'Nothing'
+try:
+    GEOMETRY_CLIENT_SRID = settings.GEOMETRY_CLIENT_SRID
+    GEOMETRY_DB_SRID = settings.GEOMETRY_DB_SRID
+except AttributeError:
+    pass
 
 class Feature(models.Model):
     """Model used for representing user-generated features
@@ -316,6 +323,7 @@ class SpatialFeature(Feature):
         abstract = True
 
     def save(self, *args, **kwargs):
+        from common.utils import clean_geometry
         self.apply_manipulators()
         if self.geometry_final:
             self.geometry_final = clean_geometry(self.geometry_final)
@@ -326,6 +334,8 @@ class SpatialFeature(Feature):
         """
         Basic KML representation of the feature geometry
         """
+        from common.utils import asKml
+
         return asKml(self.geometry_final, uid=self.uid)
 
     @classmethod
@@ -449,7 +459,8 @@ class SpatialFeature(Feature):
     def apply_manipulators(self, force=False):
         if force or (self.geometry_orig and not self.geometry_final):
             logger.debug("applying manipulators to %r" % self)
-            target_shape = self.geometry_orig.transform(settings.GEOMETRY_CLIENT_SRID, clone=True).wkt
+
+            target_shape = self.geometry_orig.transform(GEOMETRY_CLIENT_SRID, clone=True).wkt
             logger.debug("active manipulators: %r" % self.active_manipulators)
             result = False
             for manipulator in self.active_manipulators:
@@ -459,8 +470,9 @@ class SpatialFeature(Feature):
             if not result:
                 raise Exception("No result returned - maybe manipulators did not run?")
             geo = result['clipped_shape']
-            geo.transform(settings.GEOMETRY_DB_SRID)
-            ensure_clean(geo, settings.GEOMETRY_DB_SRID)
+            geo.transform(GEOMETRY_DB_SRID)
+            from common.utils import ensure_clean
+            ensure_clean(geo, GEOMETRY_DB_SRID)
             if geo:
                 self.geometry_final = geo
             else:
@@ -489,9 +501,10 @@ class PolygonFeature(SpatialFeature):
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
     """   
-    geometry_orig = models.PolygonField(srid=settings.GEOMETRY_DB_SRID,
+    
+    geometry_orig = models.PolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original Polygon Geometry")
-    geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_final = models.PolygonField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Final Polygon Geometry")
 
     @property
@@ -499,7 +512,7 @@ class PolygonFeature(SpatialFeature):
         """
         KML geometry representation of the centroid of the polygon
         """
-        geom = self.geometry_final.point_on_surface.transform(settings.GEOMETRY_CLIENT_SRID, clone=True)
+        geom = self.geometry_final.point_on_surface.transform(GEOMETRY_CLIENT_SRID, clone=True)
         return geom.kml
 
     @classmethod
@@ -519,9 +532,9 @@ class PolygonFeature(SpatialFeature):
         abstract = True
 
 class MultiPolygonFeature(SpatialFeature):
-    geometry_orig = models.MultiPolygonField(srid=settings.GEOMETRY_DB_SRID,
+    geometry_orig = models.MultiPolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original Polygon Geometry")
-    geometry_final = models.MultiPolygonField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_final = models.MultiPolygonField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Final Polygon Geometry")
 
     @property
@@ -529,7 +542,7 @@ class MultiPolygonFeature(SpatialFeature):
         """
         KML geometry representation of the centroid of the polygon
         """
-        geom = self.geometry_final.point_on_surface.transform(settings.GEOMETRY_CLIENT_SRID, clone=True)
+        geom = self.geometry_final.point_on_surface.transform(GEOMETRY_CLIENT_SRID, clone=True)
         return geom.kml
 
     @classmethod
@@ -571,9 +584,9 @@ class LineFeature(SpatialFeature):
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
     """   
-    geometry_orig = models.LineStringField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_orig = models.LineStringField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Original LineString Geometry")
-    geometry_final = models.LineStringField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_final = models.LineStringField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Final LineString Geometry")
 
     @classmethod
@@ -612,9 +625,9 @@ class PointFeature(SpatialFeature):
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
     """   
-    geometry_orig = models.PointField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_orig = models.PointField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Original Point Geometry")
-    geometry_final = models.PointField(srid=settings.GEOMETRY_DB_SRID, 
+    geometry_final = models.PointField(srid=GEOMETRY_DB_SRID, 
             null=True, blank=True, verbose_name="Final Point Geometry")
 
     @classmethod
