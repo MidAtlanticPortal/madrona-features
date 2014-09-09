@@ -783,7 +783,7 @@ class TestMpa(PolygonFeature):
         verbose_name = 'Marine Protected Area'
         form = 'madrona.features.tests.MpaForm'
         manipulators = ['madrona.manipulators.tests.TestManipulator']
-        optional_manipulators = ['madrona.manipulators.manipulators.ClipToGraticuleManipulator']
+        optional_manipulators = ['manipulators.manipulators.ClipToGraticuleManipulator']
         links = (
             related('Habitat Spreadsheet',
                 'madrona.features.tests.habitat_spreadsheet',

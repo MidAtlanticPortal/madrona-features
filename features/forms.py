@@ -9,8 +9,8 @@ from django.conf import settings
 
 class ShapeInput(forms.HiddenInput):
     def render(self, name, value, attrs=None):
-        from madrona.manipulators.manipulators import display_kml
-        from madrona.features.models import PolygonFeature, PointFeature, LineFeature
+        from manipulators.manipulators import display_kml
+        from features.models import PolygonFeature, PointFeature, LineFeature
         model = self.form_instance.Meta.model
         if issubclass(model, PolygonFeature):
             type = 'polygon'

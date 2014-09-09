@@ -5,17 +5,18 @@ from django.template import loader, TemplateDoesNotExist
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
-from madrona.features.models import Feature
-from madrona.features import user_sharing_groups
-from madrona.common.utils import get_logger
-from madrona.common import default_mimetypes as mimetypes
-from madrona.features import workspace_json, get_feature_by_uid
+from features.models import Feature
+from features.registry import user_sharing_groups
+# from madrona.common.utils import get_logger
+# from madrona.common import default_mimetypes as mimetypes
+from features.registry import workspace_json, get_feature_by_uid
 from django.template.defaultfilters import slugify
-from madrona.features.models import SpatialFeature, Feature, FeatureCollection
+from features.models import SpatialFeature, Feature, FeatureCollection
 from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
-from django.utils import simplejson
-logger = get_logger()
+import json
+import logging
+logger = logging.getLogger('features.views')
 
 def get_object_for_editing(request, uid, target_klass=None):
     """
@@ -467,12 +468,12 @@ def form_resources(request, model=None, uid=None):
     else:
         return HttpResponse('Invalid http method', status=405)        
 
-from madrona.manipulators.manipulators import get_manipulators_for_model
+from manipulators.manipulators import get_manipulators_for_model
 
 # TODO: Refactor this so that it is part of Feature.Options.edit_context
 def decorate_with_manipulators(extra_context, form_class):
     try:
-        extra_context['json'] = simplejson.dumps(get_manipulators_for_model(form_class.Meta.model))
+        extra_context['json'] = json.dumps(get_manipulators_for_model(form_class.Meta.model))
     except:
         extra_context['json'] = False
     return extra_context
@@ -768,7 +769,7 @@ def to_response(status=200, select=None, show=None, parent=None,
         "X-Madrona-UnToggle": to_csv(untoggle),
     }
     headers = dict((k,v) for k,v in headers.items() if v != '' and v != None)
-    response = HttpResponse(simplejson.dumps(headers), status=status)
+    response = HttpResponse(json.dumps(headers), status=status)
     for k,v in headers.items():
         if k != 'status' and k != 'Location':
             response[k] = v

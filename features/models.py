@@ -5,9 +5,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from django.http import HttpResponse
 from django.utils.html import escape
-from features.managers import ShareableGeoManager
-from features.forms import FeatureForm
-from features import get_model_options
+from .managers import ShareableGeoManager
+from .forms import FeatureForm
+from features.registry import get_model_options
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re

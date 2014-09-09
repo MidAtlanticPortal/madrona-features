@@ -1,7 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User, Group, Permission
 from django.conf import settings
-from . import registered_models
 
 class ShareableGeoManager(models.GeoManager):
     def shared_with_user(self, user, filter_groups=None, exclude_models=None):
