@@ -10,7 +10,7 @@ from django.contrib.auth.models import Permission, Group
 from django.conf import settings
 from django.db.utils import DatabaseError
 import json
-from nursery.introspection import get_class
+from nursery.introspection.introspection import get_class
 
 registered_models = []
 registered_model_options = {}
