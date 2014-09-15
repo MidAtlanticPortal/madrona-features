@@ -1,8 +1,8 @@
-from django.conf.urls.defaults import *
-from madrona.common.utils import get_class
-from madrona.features import registered_models, registered_links
-from madrona.features import get_collection_models
-from madrona.features import FeatureConfigurationError
+from django.conf.urls import url, patterns
+
+from features.registry import registered_models, registered_links
+from features.registry import get_collection_models
+from features.registry import FeatureConfigurationError
 import re
 
 urlpatterns = []

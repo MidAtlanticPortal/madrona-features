@@ -10,6 +10,7 @@ from django.contrib.auth.models import Permission, Group
 from django.conf import settings
 from django.db.utils import DatabaseError
 import json
+from nursery.introspection import get_class
 
 registered_models = []
 registered_model_options = {}
@@ -17,16 +18,9 @@ registered_links = []
 logger = logging.getLogger('features')
 
 
-# Two functions brought from madrona.common.utils so we don't have a dependency
+# functions brought from madrona.common.utils so we don't have a dependency
 # on that module anymore. 
-# TODO: Find a home for them.
 # TODO: Refactor so they don't import modules
-
-def get_class(path):
-    from django.utils import importlib
-    module, dot, cls = path.rpartition('.')
-    m = importlib.import_module(module)
-    return m.__getattribute__(cls)
  
 def enable_sharing(group=None):
     """

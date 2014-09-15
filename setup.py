@@ -13,6 +13,7 @@ setup(
     install_requires=[
         'mapnik',
         'manipulators',
+        'nursery',  # for get_class
     ],
     include_package_data=True,
     license='TBD',
