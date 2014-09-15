@@ -8,7 +8,7 @@ import re
 urlpatterns = []
 for model in registered_models:
     options = model.get_options()
-    urlpatterns += patterns('madrona.features.views',
+    urlpatterns += patterns('features.views',
         url(r'^%s/form/$' % (options.slug,), 'form_resources', 
             kwargs={'model': model}, 
             name="%s_create_form" % (options.slug, )),
@@ -28,7 +28,7 @@ for model in registered_models:
 
 for model in get_collection_models():
     options = model.get_options()
-    urlpatterns += patterns('madrona.features.views',
+    urlpatterns += patterns('features.views',
         url(r'^%s/(?P<collection_uid>[\w_]+)/remove/(?P<uids>[\w_,]+)$' % (options.slug, ), 
             'manage_collection', kwargs={'collection_model': model, 'action': 'remove'}, 
             name='%s_remove_features' % (options.slug,)),
@@ -40,12 +40,12 @@ for model in get_collection_models():
 
 for link in registered_links:
     path = r'^%s/links/%s/(?P<uids>[\w_,]+)/$' % (link.parent_slug, link.slug)
-    urlpatterns += patterns('madrona.features.views',
+    urlpatterns += patterns('features.views',
         url(path, 'handle_link', kwargs={'link': link}, 
             name=link.url_name)
     )
 
-urlpatterns += patterns('madrona.features.views',
+urlpatterns += patterns('features.views',
     url(r'^(?P<username>.+)/workspace-owner.json', 'workspace', kwargs={"is_owner": True}, name='workspace-owner-json'),
     url(r'^(?P<username>.+)/workspace-shared.json', 'workspace', kwargs={"is_owner": False}, name='workspace-shared-json'),
     url(r'^workspace-public.json', 'workspace', kwargs={"is_owner": False, "username": ''}, name='workspace-public-json'),
