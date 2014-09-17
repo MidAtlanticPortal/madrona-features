@@ -214,7 +214,7 @@ not a string path." % (name,))
         """
         if self.valid_children and not issubclass(self._model, FeatureCollection):
             raise FeatureConfigurationError("valid_children Option only \
-                    for FeatureCollection classes" % m)
+                    for FeatureCollection classes")
 
         self.manipulators = [] 
         """
