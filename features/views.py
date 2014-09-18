@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.cache import cache_page
 import json
 import logging
+from django.views.decorators.csrf import csrf_exempt
 logger = logging.getLogger('features.views')
 
 def get_object_for_editing(request, uid, target_klass=None):
@@ -447,6 +448,7 @@ def resource(request, model=None, uid=None):
     elif request.method == 'POST':
         return update(request, model, uid)
 
+@csrf_exempt
 def form_resources(request, model=None, uid=None):
     if model is None:
         return HttpResponse('Model not specified in feature urls', status=500)
