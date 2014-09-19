@@ -1,44 +1,40 @@
+from features.registry import registered_models
+from features.models import FeatureCollection, SpatialFeature, Feature
+from features.registry import user_sharing_groups
+from features.registry import workspace_json, get_feature_by_uid
+import json
+import logging
+
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.gis.gdal import DataSource
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext, Context
 from django.template import loader, TemplateDoesNotExist
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import Group
-from features.models import Feature
-from features.registry import user_sharing_groups
-# from madrona.common import default_mimetypes as mimetypes
-from features.registry import workspace_json, get_feature_by_uid
 from django.template.defaultfilters import slugify
-from features.models import SpatialFeature, Feature, FeatureCollection
-from django.core.urlresolvers import reverse
-from django.views.decorators.cache import cache_page
-import json
-import logging
-from django.views.decorators.csrf import csrf_exempt
-from manipulators.manipulators import get_manipulators_for_model
 from django.template.loader import get_template
-from madrona.kmlapp.views import get_styles, create_kmz
-from madrona.common import default_mimetypes as mimetypes
-from features.models import FeatureCollection
-from madrona.common.utils import is_text
-from madrona.features import registered_models
-from madrona.features import registered_models
-from madrona.common import default_mimetypes as mimetypes
-from madrona.common.jsonutils import get_properties_json, get_feature_json, srid_to_urn, srid_to_proj
-from madrona.features.models import FeatureCollection, SpatialFeature, Feature
-from django.contrib.gis.gdal import DataSource
-import tempfile
-import os
-import json
+from django.views.decorators.cache import cache_page
+from django.views.decorators.csrf import csrf_exempt
+
+from nursery.mime import mimetypes
+from nursery.geojson.geojson import (get_properties_json, get_feature_json, 
+                                     srid_to_urn, srid_to_proj)
+# from madrona.kmlapp.views import get_styles, create_kmz
+from manipulators.manipulators import get_manipulators_for_model
+
+
 logger = logging.getLogger('features.views')
+
 
 def get_object_for_editing(request, uid, target_klass=None):
     """
     Return the specified instance by uid for editing.
     If a target_klass is provided, uid will be checked for consistency.
-    If the request has no logged-in user, a 401 Response will be returned. If 
-    the item is not found, a 404 Response will be returned. If the user is 
+    If the request has no logged-in user, a 401 Response will be returned. If
+    the item is not found, a 404 Response will be returned. If the user is
     not authorized to edit the item (not the owner or a staff user), a 403 Not
     Authorized Response will be returned.
 
@@ -523,7 +519,33 @@ Feature instance.' % (instance.__class__.__name__, ))
         select=copies,
         untoggle=untoggle,
     )
-    return response
+
+def is_text(s):
+    """
+    Tests a string to see if it's binary
+    borrowed from http://code.activestate.com/recipes/173220-test-if-a-file-or-string-is-text-or-binary/
+    """
+    import string
+    from django.utils.encoding import smart_str
+    s = smart_str(s)
+    text_characters = "".join(map(chr, range(32, 127)) + list("\n\r\t\b"))
+    _null_trans = string.maketrans("", "")
+
+    if "\0" in s:
+        return False
+    if not s:
+        return True 
+
+    # Get the non-text characters (maps a character to itself then
+    # use the 'remove' option to get rid of the text characters.)
+    t = s.translate(_null_trans, text_characters)
+
+    # If more than 30% non-text characters, then
+    # this is considered a binary file
+    if float(len(t)) / len(s) > 0.30:
+        return False
+    return True
+
 
 def kml(request, instances):
     return kml_core(request, instances, kmz=False)
