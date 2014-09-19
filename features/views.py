@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 from features.models import Feature
 from features.registry import user_sharing_groups
-# from madrona.common.utils import get_logger
 # from madrona.common import default_mimetypes as mimetypes
 from features.registry import workspace_json, get_feature_by_uid
 from django.template.defaultfilters import slugify
@@ -17,6 +16,21 @@ from django.views.decorators.cache import cache_page
 import json
 import logging
 from django.views.decorators.csrf import csrf_exempt
+from manipulators.manipulators import get_manipulators_for_model
+from django.template.loader import get_template
+from madrona.kmlapp.views import get_styles, create_kmz
+from madrona.common import default_mimetypes as mimetypes
+from features.models import FeatureCollection
+from madrona.common.utils import is_text
+from madrona.features import registered_models
+from madrona.features import registered_models
+from madrona.common import default_mimetypes as mimetypes
+from madrona.common.jsonutils import get_properties_json, get_feature_json, srid_to_urn, srid_to_proj
+from madrona.features.models import FeatureCollection, SpatialFeature, Feature
+from django.contrib.gis.gdal import DataSource
+import tempfile
+import os
+import json
 logger = logging.getLogger('features.views')
 
 def get_object_for_editing(request, uid, target_klass=None):
@@ -470,7 +484,7 @@ def form_resources(request, model=None, uid=None):
     else:
         return HttpResponse('Invalid http method', status=405)        
 
-from manipulators.manipulators import get_manipulators_for_model
+
 
 # TODO: Refactor this so that it is part of Feature.Options.edit_context
 def decorate_with_manipulators(extra_context, form_class):
@@ -522,10 +536,10 @@ def kml_core(request, instances, kmz):
     Generic view for KML representation of feature classes. 
     Can be overridden in options but this provided a default.
     """
-    from madrona.kmlapp.views import get_styles, create_kmz 
-    from django.template.loader import get_template
-    from madrona.common import default_mimetypes as mimetypes
-    from madrona.features.models import FeatureCollection
+
+
+
+
 
     user = request.user
     try:
@@ -540,7 +554,7 @@ def kml_core(request, instances, kmz):
     # If there is only a single instance with a kml_full property,
     # just return the contents verbatim
     if len(instances) == 1:
-        from madrona.common.utils import is_text
+
         filename = slugify(instances[0].name)
         try:
             kml = instances[0].kml_full
@@ -714,7 +728,7 @@ def workspace(request, username, is_owner):
 
 @cache_page(60 * 60)
 def feature_tree_css(request):
-    from madrona.features import registered_models
+
     if request.method == 'GET':
         styles = []
         for model in registered_models:
@@ -791,7 +805,7 @@ def has_features(user):
     """
     Util function to determine if a user owns any features
     """
-    from madrona.features import registered_models
+
     for model in registered_models:
         try:
             if len(model.objects.filter(user=user)) > 0:
@@ -826,13 +840,13 @@ def geojson_link(request, instances):
 
     Pass by URL GET parameter like ?strategy=nest_feature_set
     """
-    from madrona.common import default_mimetypes as mimetypes
-    from madrona.common.jsonutils import get_properties_json, get_feature_json, srid_to_urn, srid_to_proj
-    from madrona.features.models import FeatureCollection, SpatialFeature, Feature
-    from django.contrib.gis.gdal import DataSource
-    import tempfile
-    import os
-    import json
+
+
+
+
+
+
+
     
     strategy = request.GET.get('strategy', default='flat')
     strategy = strategy.lower()
