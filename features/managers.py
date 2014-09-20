@@ -92,3 +92,9 @@ class ShareableGeoManager(models.GeoManager):
                     sharing_groups__in=groups
                 )
             ).distinct()
+
+    if not settings.ENABLE_SHARABLE_OBJECTS:
+        def nothing(self, *args, **kwargs):
+            return self.none()
+        shared_with_user = nothing
+
