@@ -11,6 +11,7 @@ from django.conf import settings
 from django.db.utils import DatabaseError
 import json
 from nursery.introspection.introspection import get_class
+import sys
 
 registered_models = []
 registered_model_options = {}
@@ -358,14 +359,18 @@ not a string path." % (name,))
         try:
             klass = get_class(self.form)
         except Exception, e:
-            raise FeatureConfigurationError(
+            raise (FeatureConfigurationError(
                 "Feature class %s is not configured with a valid form class. \
-Could not import %s.\n%s" % (self._model.__name__, self.form, e))
+Could not import %s.\n%s" % (self._model.__name__, self.form, e)), 
+                   None, 
+                sys.exc_info()[2])
 
         if not issubclass(klass, FeatureForm):
-            raise FeatureConfigurationError(
+            raise (FeatureConfigurationError(
                 "Feature class %s's form is not a subclass of \
-features.forms.FeatureForm." % (self._model.__name__, ))
+features.forms.FeatureForm." % (self._model.__name__, )), 
+                   None, 
+                   sys.exc_info()[2])
 
         return klass
 
