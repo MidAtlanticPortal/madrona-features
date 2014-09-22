@@ -791,7 +791,7 @@ def user_sharing_groups(user):
     try:
         p = Permission.objects.get(codename='can_share_features')
     except Permission.DoesNotExist:
-        return None
+        return Permission.objects.none()
 
     groups = user.groups.filter(permissions=p).distinct()
     return groups
