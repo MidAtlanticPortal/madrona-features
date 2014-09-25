@@ -11,7 +11,6 @@ setup(
     version='0.0.1',
     packages=['features'],
     install_requires=[
-        'mapnik',
         'manipulators',
         'nursery',  # for get_class
     ],

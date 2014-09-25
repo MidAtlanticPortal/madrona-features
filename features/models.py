@@ -8,6 +8,7 @@ from django.utils.html import escape
 from .managers import ShareableGeoManager
 from .forms import FeatureForm
 from features.registry import get_model_options
+from manipulators.geometry import ensure_clean
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
@@ -323,10 +324,10 @@ class SpatialFeature(Feature):
         abstract = True
 
     def save(self, *args, **kwargs):
-        from common.utils import clean_geometry
+        # from common.utils import clean_geometry
         self.apply_manipulators()
-        if self.geometry_final:
-            self.geometry_final = clean_geometry(self.geometry_final)
+        # if self.geometry_final:
+        #     self.geometry_final = clean_geometry(self.geometry_final)
         super(SpatialFeature, self).save(*args, **kwargs) # Call the "real" save() method
 
     @property
@@ -471,7 +472,6 @@ class SpatialFeature(Feature):
                 raise Exception("No result returned - maybe manipulators did not run?")
             geo = result['clipped_shape']
             geo.transform(GEOMETRY_DB_SRID)
-            from common.utils import ensure_clean
             ensure_clean(geo, GEOMETRY_DB_SRID)
             if geo:
                 self.geometry_final = geo
