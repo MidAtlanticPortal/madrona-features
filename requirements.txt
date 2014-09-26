@@ -1,0 +1,2 @@
+-e git+git@bitbucket.org:point97/madrona-manipulators.git@0cf4f63e17c1ab8c855be573c9d5f2d75e695d56#egg=madrona_manipulators-master
+-e git+git@bitbucket.org:point97/p97-nursery.git@c4699ba40de6e90972c6c683449f0c7caa29ce08#egg=nursery-master
