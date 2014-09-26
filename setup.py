@@ -11,8 +11,8 @@ setup(
     version='0.0.1',
     packages=['features'],
     install_requires=[
-        'manipulators',
-        'nursery',  # for get_class
+        'madrona-manipulators',
+        'madrona-nursery',  # for get_class
     ],
     include_package_data=True,
     license='TBD',
