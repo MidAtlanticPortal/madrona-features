@@ -12,7 +12,7 @@ setup(
     packages=['features'],
     install_requires=[
         'madrona-manipulators',
-        'madrona-nursery',  # for get_class
+        'p97-nursery',  # for get_class
     ],
     include_package_data=True,
     license='TBD',
