@@ -93,8 +93,8 @@ class ShareableGeoManager(models.GeoManager):
                 )
             ).distinct()
 
-    if not settings.ENABLE_SHARABLE_OBJECTS:
-        def nothing(self, *args, **kwargs):
-            return self.none()
-        shared_with_user = nothing
+#     if not settings.ENABLE_SHARABLE_OBJECTS:
+#         def nothing(self, *args, **kwargs):
+#             return self.none()
+#         shared_with_user = nothing
 

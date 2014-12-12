@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand, AppCommand
 from optparse import make_option
 from django.contrib.auth.models import Group
-from madrona.common.utils import enable_sharing 
+from features.registry import enable_sharing
+
 
 class Command(BaseCommand):
     help = "Configures the permissions to allow sharing between groups"
