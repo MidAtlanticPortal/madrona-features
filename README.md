@@ -1,3 +1,3 @@
-# mp-visualize
+# madrona-features
 
 Features for Marine Planner
