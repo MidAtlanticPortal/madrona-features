@@ -1,3 +1,3 @@
-# mp-visualize
+# madroan-features
 
 Features for Marine Planner
