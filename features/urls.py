@@ -5,6 +5,25 @@ from features.registry import get_collection_models
 from features.registry import FeatureConfigurationError
 import re
 
+# ============================================================================
+# Hack for MP-537
+# Keep this url manually updated for the moment. Remove when MP-540 is completed
+marco_openlayers_url = '/static/visualize/deps/openlayers/OpenLayers-marco-min.js'
+
+import django.contrib.gis.forms.widgets
+django.contrib.gis.forms.widgets.OpenLayersWidget.Media.js = (
+    marco_openlayers_url,
+    'gis/js/OLMapWidget.js',
+)
+
+django.contrib.gis.forms.widgets.OSMWidget.Media.js = (
+    marco_openlayers_url,
+    'http://www.openstreetmap.org/openlayers/OpenStreetMap.js',
+    'gis/js/OLMapWidget.js',
+)
+# End hack
+# ============================================================================
+
 urlpatterns = []
 for model in registered_models:
     options = model.get_options()
