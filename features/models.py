@@ -16,13 +16,8 @@ import re
 
 logger = logging.getLogger('features.models')
 
-GEOMETRY_CLIENT_SRID = 'Nothing'
-GEOMETRY_DB_SRID = 'Nothing'
-try:
-    GEOMETRY_CLIENT_SRID = settings.GEOMETRY_CLIENT_SRID
-    GEOMETRY_DB_SRID = settings.GEOMETRY_DB_SRID
-except AttributeError:
-    pass
+GEOMETRY_CLIENT_SRID = settings.GEOMETRY_CLIENT_SRID
+GEOMETRY_DB_SRID = settings.GEOMETRY_DB_SRID
 
 class Feature(models.Model):
     """Model used for representing user-generated features

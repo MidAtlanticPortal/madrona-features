@@ -413,7 +413,7 @@ def update(request, model, uid):
         Yes we know, PUT is supposed to be used rather than POST, 
         but it was much easier to implement as POST :)""", status=405)
 
-
+@csrf_exempt
 def resource(request, model=None, uid=None):
     """
     Provides a resource for a django model that can be utilized by the 
