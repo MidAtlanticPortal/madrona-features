@@ -814,6 +814,7 @@ def groups_users_sharing_with(user, include_public=False):
             if group.name in settings.SHARING_TO_STAFF_GROUPS and not user.is_staff:
                 continue
             group_objects = shared_objects.filter(sharing_groups=group)
+            
             user_list = []
             for gobj in group_objects:
                 if gobj.user not in user_list and gobj.user != user:

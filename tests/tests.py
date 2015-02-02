@@ -1,13 +1,15 @@
 from django.test import TestCase
-from madrona.features import *
-from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection, MultiPolygonFeature
-from madrona.features.forms import FeatureForm
-from madrona.common.utils import kml_errors, enable_sharing
+from features.registry import register
+from features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection, MultiPolygonFeature
+from features.forms import FeatureForm
+# from common.utils import kml_errors, enable_sharing
 import os
 import shutil
 import json
 from django.test.client import Client
 from django.contrib.auth.models import *
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.gis.geos import GEOSGeometry 
@@ -31,7 +33,7 @@ def delete_template(path):
     if os.path.exists(path):
         shutil.rmtree(path)
 
-@register        
+@register
 class TestGetFormClassFeature(Feature):
     class Options:
         form = 'madrona.features.tests.TestFeatureForm'

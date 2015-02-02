@@ -52,3 +52,4 @@ class SpatialFeatureForm(FeatureForm):
         super(SpatialFeatureForm, self).__init__(*args, **kwargs)
         self.fields['geometry_final'].widget.form_instance = self
         self.fields['geometry_orig'].widget.form_instance = self
+
