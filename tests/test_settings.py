@@ -36,3 +36,9 @@ SPATIALITE_LIBRARY_PATH = os.path.expanduser('~/root/brew/lib/mod_spatialite.dyl
 
 GEOMETRY_CLIENT_SRID = 3857
 GEOMETRY_DB_SRID = 3857
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}

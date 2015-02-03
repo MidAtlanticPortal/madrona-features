@@ -1,5 +1,6 @@
 from django.test import TestCase
-from features.registry import register
+from features.registry import register, alternate, edit, edit_form, related, \
+    workspace_json
 from features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection, MultiPolygonFeature
 from features.forms import FeatureForm
 # from common.utils import kml_errors, enable_sharing
@@ -36,7 +37,7 @@ def delete_template(path):
 @register
 class TestGetFormClassFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.TestFeatureForm'
+        form = 'tests.tests.TestFeatureForm'
 
 class TestFeatureForm(FeatureForm):
     class Meta:
@@ -45,7 +46,7 @@ class TestFeatureForm(FeatureForm):
 @register
 class TestGetFormClassFailFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.TestForm'
+        form = 'tests.tests.TestForm'
 
 class TestForm:
     class Meta:
@@ -54,39 +55,39 @@ class TestForm:
 @register
 class TestSlugFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
 
 @register
 class TestDefaultVerboseNameFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
 
 @register 
 class TestCustomVerboseNameFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
         verbose_name = 'vb-name'
 
 @register
 class TestDefaultShowTemplateFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
 
 @register
 class TestCustomShowTemplateFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
         show_template = 'location/show.html'
 
 @register
 class TestMissingDefaultShowFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
 
 @register
 class TestMissingCustomShowFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
         show_template = 'location/show.html'
 
 class FeatureOptionsTest(TestCase):
@@ -182,7 +183,7 @@ class FeatureOptionsTest(TestCase):
 @register
 class TestDeleteFeature(Feature):
     class Options:
-        form = 'madrona.features.form.FeatureForm'
+        form = 'tests.form.FeatureForm'
 
 class DeleteTest(TestCase):
 
@@ -278,7 +279,7 @@ class DeleteTest(TestCase):
 @register
 class CreateFormTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.CreateFormTestForm'
+        form = 'tests.tests.CreateFormTestForm'
 
 class CreateFormTestForm(FeatureForm):
     class Meta:
@@ -310,7 +311,7 @@ class CreateFormTest(TestCase):
 @register
 class CreateTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.CreateTestForm'
+        form = 'tests.tests.CreateTestForm'
 
 class CreateTestForm(FeatureForm):
     class Meta:
@@ -364,7 +365,7 @@ class CreateTest(TestCase):
 @register
 class UpdateFormTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.UpdateFormTestForm'
+        form = 'tests.tests.UpdateFormTestForm'
 
 class UpdateFormTestForm(FeatureForm):
     class Meta:
@@ -417,7 +418,7 @@ class UpdateFormTest(TestCase):
 @register
 class UpdateTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.UpdateTestForm'
+        form = 'tests.tests.UpdateTestForm'
 
 class UpdateTestForm(FeatureForm):
     class Meta:
@@ -511,23 +512,23 @@ class LinkViewValidationTest(TestCase):
         with self.assertRaises(FeatureConfigurationError):
             link = alternate(
                 'test title',
-                'madrona.features.tests.invalid_single_select_view')
+                'tests.tests.invalid_single_select_view')
 
         # Accepts the instance argument
         link = alternate('test title',
-            'madrona.features.tests.valid_single_select_view')
+            'tests.tests.valid_single_select_view')
         self.assertIsInstance(link, Link)
 
     def test_multiple_select_view_requires_instance_argument(self):
         # Must accept at least a second argument for the instances
         with self.assertRaises(FeatureConfigurationError):
             link = alternate('test title',
-                'madrona.features.tests.invalid_multiple_select_view', 
+                'tests.tests.invalid_multiple_select_view',
                 select='multiple')
 
         # Accepts the instance argument
         link = alternate('test title',
-            'madrona.features.tests.valid_multiple_select_view', 
+            'tests.tests.valid_multiple_select_view',
             select='multiple')
         self.assertIsInstance(link, Link)
 
@@ -539,23 +540,23 @@ class LinkViewValidationTest(TestCase):
 @register
 class LinkTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.LinkTestFeatureForm'
+        form = 'features.tests.LinkTestFeatureForm'
         links = (
             alternate('Single Select View',
-                'madrona.features.tests.valid_single_select_view',  
+                'tests.tests.valid_single_select_view',
                 type="application/shapefile"),
 
             alternate('Spreadsheet of all Features',
-                'madrona.features.tests.valid_multiple_select_view',
+                'tests.tests.valid_multiple_select_view',
                 type="application/xls", 
                 select='multiple single'),
 
             edit('Edit single feature',
-                'madrona.features.tests.valid_single_select_view'
+                'tests.tests.valid_single_select_view'
             ),
 
             edit_form('Edit multiple features',
-                'madrona.features.tests.valid_multiple_select_view',
+                'tests.tests.valid_multiple_select_view',
                 select='multiple single'
             ),
         )
@@ -665,14 +666,14 @@ def multi_select_view(request, instances):
 @register
 class GenericLinksTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.GenericLinksTestForm'
+        form = 'tests.features.tests.GenericLinksTestForm'
         links = (
             alternate('Generic Link',
-                'madrona.features.tests.multi_select_view',  
+                'tests.tests.multi_select_view',
                 type="application/shapefile",
                 select='multiple single'),
             alternate('Non-Generic Link',
-                'madrona.features.tests.multi_select_view',  
+                'tests.tests.multi_select_view',
                 type="application/shapefile",
                 select='multiple single'),
         )
@@ -684,10 +685,10 @@ class GenericLinksTestForm(FeatureForm):
 @register
 class OtherGenericLinksTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.OtherGenericLinksTestForm'
+        form = 'tests.tests.OtherGenericLinksTestForm'
         links = (
             alternate('Generic Link',
-                'madrona.features.tests.multi_select_view',  
+                'tests.tests.multi_select_view',
                 type="application/shapefile",
                 select='multiple single'),
         )
@@ -699,10 +700,10 @@ class OtherGenericLinksTestForm(FeatureForm):
 @register
 class LastGenericLinksTestFeature(Feature):
     class Options:
-        form = 'madrona.features.tests.GenericLinksTestForm'
+        form = 'tests.tests.GenericLinksTestForm'
         links = (
             alternate('Different Name',
-                'madrona.features.tests.multi_select_view',  
+                'tests.tests.multi_select_view',
                 type="application/shapefile",
                 select='multiple single'),
 
@@ -783,27 +784,27 @@ class TestMpa(PolygonFeature):
 
     class Options:
         verbose_name = 'Marine Protected Area'
-        form = 'madrona.features.tests.MpaForm'
-        manipulators = ['madrona.manipulators.tests.TestManipulator']
+        form = 'tests.tests.MpaForm'
+        manipulators = ['manipulators.tests.TestManipulator']
         optional_manipulators = ['manipulators.manipulators.ClipToGraticuleManipulator']
         links = (
             related('Habitat Spreadsheet',
-                'madrona.features.tests.habitat_spreadsheet',
+                'tests.tests.habitat_spreadsheet',
                 select='single',
                 type='application/xls',
                 limit_to_groups=['SuperSpecialTestGroup']
             ),
             alternate('Export KML for Owner',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single',
                 must_own=True
             ),
             alternate('Export KML',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single'
             ),
             alternate('Export Misc for Owner',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single',
                 must_own=True
             )
@@ -816,11 +817,11 @@ class MpaForm(FeatureForm):
 @register
 class TestArray(FeatureCollection):
     class Options:
-        form = 'madrona.features.tests.TestArrayForm'
+        form = 'tests.tests.TestArrayForm'
         valid_children = (
-            'madrona.features.tests.TestMpa', 
-            'madrona.features.tests.Pipeline', 
-            'madrona.features.tests.RenewableEnergySite')
+            'tests.tests.TestMpa',
+            'tests.tests.Pipeline',
+            'tests.tests.RenewableEnergySite')
 
 class TestArrayForm(FeatureForm):
     class Meta:
@@ -836,16 +837,16 @@ class TestFolder(FeatureCollection):
         return copy
 
     class Options:
-        form = 'madrona.features.tests.TestFolderForm'
+        form = 'tests.tests.TestFolderForm'
         valid_children = (
-            'madrona.features.tests.TestMpa', 
-            'madrona.features.tests.TestArray', 
-            'madrona.features.tests.TestFolder', 
-            'madrona.features.tests.TestDeleteFeature', 
-            'madrona.features.tests.RenewableEnergySite')
+            'tests.tests.TestMpa',
+            'tests.tests.TestArray',
+            'tests.tests.TestFolder',
+            'tests.tests.TestDeleteFeature',
+            'tests.tests.RenewableEnergySite')
         links = (
             edit('Delete folder and contents',
-                'madrona.features.tests.delete_w_contents',
+                'tests.tests.delete_w_contents',
                 select='single multiple',
                 confirm="""
                 Are you sure you want to delete this folder and it's contents? 
@@ -853,12 +854,12 @@ class TestFolder(FeatureCollection):
                 """
             ),
             alternate('Export KML for Owner',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single',
                 must_own=True
             ),
             alternate('Export KML',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single'
             )
         )
@@ -878,15 +879,15 @@ class RenewableEnergySite(PolygonFeature):
 
     class Options:
         verbose_name = 'Renewable Energy Site'
-        form = 'madrona.features.tests.RenewableEnergySiteForm'
+        form = 'tests.tests.RenewableEnergySiteForm'
         links = (
             related('Viewshed Map',
-                'madrona.features.tests.viewshed_map',
+                'tests.tests.viewshed_map',
                 select='single',
                 type='image/png'
             ),
             alternate('Export KML',
-                'madrona.features.tests.kml',
+                'tests.tests.kml',
                 select='multiple single'
             )
         )
@@ -902,7 +903,7 @@ class Pipeline(LineFeature):
 
     class Options:
         verbose_name = 'Pipeline'
-        form = 'madrona.features.tests.PipelineForm'
+        form = 'tests.tests.PipelineForm'
 
 class PipelineForm(FeatureForm):
     class Meta:
@@ -914,7 +915,7 @@ class Shipwreck(PointFeature):
 
     class Options:
         verbose_name = 'Shipwreck'
-        form = 'madrona.features.tests.ShipwreckForm'
+        form = 'tests.tests.ShipwreckForm'
 
 class ShipwreckForm(FeatureForm):
     class Meta:
@@ -1579,7 +1580,7 @@ class SharingTestCase(TestCase):
 class TestForGeoJSON(PolygonFeature):
     designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
     class Options:
-        form = 'madrona.features.tests.GJForm'
+        form = 'tests.tests.GJForm'
 
     def geojson(self, srid):
         import json
@@ -1598,7 +1599,7 @@ class TestNoGeomFinal(Feature):
     designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
     # just a base feature so no geometry_final attribute
     class Options:
-        form = 'madrona.features.tests.GJFormNoGeom'
+        form = 'tests.tests.GJFormNoGeom'
 
 class GJFormNoGeom(FeatureForm):
     class Meta:
@@ -1608,7 +1609,7 @@ class GJFormNoGeom(FeatureForm):
 class TestNoGeoJSON(PolygonFeature):
     designation = models.CharField(max_length=1, choices=DESIGNATION_CHOICES)
     class Options:
-        form = 'madrona.features.tests.TestNoGeoJSONForm'
+        form = 'tests.tests.TestNoGeoJSONForm'
         export_geojson = False
 
 class TestNoGeoJSONForm(FeatureForm):
@@ -1825,7 +1826,7 @@ class GeoJSONTest(TestCase):
 class MockMultiPoly(MultiPolygonFeature):
     class Options:
         verbose_name = 'Marine Protected Area multipolygon'
-        form = 'madrona.features.tests.TestMultiPolyForm'
+        form = 'tests.tests.TestMultiPolyForm'
         manipulators = []
 
 class MockMultiPolyForm(FeatureForm):

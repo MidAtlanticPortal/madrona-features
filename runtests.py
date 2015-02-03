@@ -9,9 +9,13 @@ import django
 from django.conf import settings
 from django.test.utils import get_runner
 
-if __name__ == '__main__':
+def test_setup():
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_settings'
     django.setup()
+
+
+if __name__ == '__main__':
+    test_setup()
     TestRunner = get_runner(settings)
     test_runner = TestRunner()
 
