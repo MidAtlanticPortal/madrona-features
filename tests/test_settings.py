@@ -10,6 +10,7 @@ INSTALLED_APPS = (
 
     'tests',
     'features',
+    # 'manipulators',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -28,17 +29,24 @@ DATABASES = {
 
 ROOT_URLCONF = 'tests.urls'
 
-# ----
-
-# Madrona-features settings
-
-SPATIALITE_LIBRARY_PATH = os.path.expanduser('~/root/brew/lib/mod_spatialite.dylib')
-
-GEOMETRY_CLIENT_SRID = 3857
-GEOMETRY_DB_SRID = 3857
-
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+
+# ----
+
+# Madrona-features settings
+
+SPATIALITE_LIBRARY_PATH = os.path.expanduser('~/root/brew/lib/mod_spatialite.dylib')
+SHARING_TO_PUBLIC_GROUPS = ['Share with Public']
+SHARING_TO_STAFF_GROUPS = ['Share with Staff']
+TITLES = {
+    'self': 'View',
+}
+
+GEOMETRY_CLIENT_SRID = 3857
+GEOMETRY_DB_SRID = 3857
+GEOJSON_DOWNLOAD = True
+GEOJSON_SRID = 3857
