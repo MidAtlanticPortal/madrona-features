@@ -614,7 +614,10 @@ def kml_core(request, instances, kmz):
         else:
             features.append(instance)
 
-    styles = get_styles(features,collections,links=False)
+    # TODO: get_styles is from madrona.kmlapp, which hasn't been added yet
+    # for now, just return nothing
+    # styles = get_styles(features,collections,links=False)
+    styles = []
 
     t = get_template('kmlapp/myshapes.kml')
     context = Context({
