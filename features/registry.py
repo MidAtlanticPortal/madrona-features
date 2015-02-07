@@ -75,7 +75,7 @@ class FeatureOptions:
     def __init__(self, model):
 
         # Import down here to avoid circular reference
-        from features.models import Feature, FeatureCollection    
+        from features.models import Feature, FeatureCollection
 
         # call this here to ensure that permsissions get created
         #enable_sharing()
@@ -111,17 +111,17 @@ not a string path." % (name,))
 
         self.slug = slugify(name)
         """
-        Name used in the url path to this feature as well as part of 
+        Name used in the url path to this feature as well as part of
         the Feature's uid
         """
 
         self.verbose_name = getattr(self._options, 'verbose_name', name)
         """
-        Name specified or derived from the feature class name used 
+        Name specified or derived from the feature class name used
         in the user interface for representing this feature class.
         """
 
-        self.form_template = getattr(self._options, 'form_template', 
+        self.form_template = getattr(self._options, 'form_template',
             'features/form.html')
         """
         Location of the template that should be used to render forms
@@ -157,14 +157,14 @@ not a string path." % (name,))
 
         self.enable_copy = getattr(self._options, 'disable_copy', True)
         """
-        Enable copying features. Uses the feature class' copy() method. 
+        Enable copying features. Uses the feature class' copy() method.
         Defaults to True.
         """
 
         # Add a copy method unless disabled
         if self.enable_copy:
-            self.links.insert(0, edit('Copy', 
-                'features.views.copy', 
+            self.links.insert(0, edit('Copy',
+                'features.views.copy',
                 select='multiple single',
                 edits_original=False))
 
@@ -172,17 +172,17 @@ not a string path." % (name,))
 
         # Add a multi-share generic link
         # TODO when the share_form view takes multiple instances
-        #  we can make sharing a generic link 
-        #self.links.insert(0, edit('Share', 
-        #    'features.views.share_form', 
+        #  we can make sharing a generic link
+        #self.links.insert(0, edit('Share',
+        #    'features.views.share_form',
         #    select='multiple single',
         #    method='POST',
         #    edits_original=True,
         #))
 
         # Add a multi-delete generic link
-        self.links.insert(0, edit('Delete', 
-            'features.views.multi_delete', 
+        self.links.insert(0, edit('Delete',
+            'features.views.multi_delete',
             select='multiple single',
             method='DELETE',
             edits_original=True,
@@ -194,8 +194,8 @@ not a string path." % (name,))
         if export_png:
             # TODO: Bring in the staticmap module
             logger.warning("Uncomment the following code")
-#             self.links.insert(0, alternate('PNG Image', 
-#                 'staticmap.views.staticmap_link', 
+#             self.links.insert(0, alternate('PNG Image',
+#                 'staticmap.views.staticmap_link',
 #                 select='multiple single',
 #                 method='GET',
 #             ))
@@ -203,8 +203,8 @@ not a string path." % (name,))
         # Add a geojson generic link
         export_geojson = getattr(self._options, 'export_geojson', True)
         if export_geojson:
-            self.links.insert(0, alternate('GeoJSON', 
-                'features.views.geojson_link', 
+            self.links.insert(0, alternate('GeoJSON',
+                'features.views.geojson_link',
                 select='multiple single',
                 method='GET',
             ))
@@ -217,19 +217,23 @@ not a string path." % (name,))
             raise FeatureConfigurationError("valid_children Option only \
                     for FeatureCollection classes")
 
-        self.manipulators = [] 
+        self.manipulators = []
         """
         Required manipulators applied to user input geometries
         """
-        manipulators = getattr(self._options, 'manipulators', []) 
+        manipulators = getattr(self._options, 'manipulators', [])
         for m in manipulators:
             try:
                 manip = get_class(m)
-            except:
-                raise FeatureConfigurationError("Error trying to import module %s" % m)
+            except Exception, e:
+                # Don't lose the original exception, fake a PEP3134 exception
+                # chain (too bad we're not Py3k)
+                t, v, tb = sys.exc_info()
+                s = "Error trying to import module %s" % m
+                raise FeatureConfigurationError, (s, t, v), tb
 
             # Test that manipulator is compatible with this Feature Class
-            geom_field = self._model.geometry_final._field.__class__.__name__ 
+            geom_field = self._model.geometry_final._field.__class__.__name__
             if geom_field not in manip.Options.supported_geom_fields:
                 raise FeatureConfigurationError("%s does not support %s geometry types (only %r)" %
                         (m, geom_field, manip.Options.supported_geom_fields))
@@ -249,7 +253,7 @@ not a string path." % (name,))
                 raise FeatureConfigurationError("Error trying to import module %s" % m)
 
             # Test that manipulator is compatible with this Feature Class
-            geom_field = self._model.geometry_final._field.__class__.__name__ 
+            geom_field = self._model.geometry_final._field.__class__.__name__
             try:
                 if geom_field not in manip.Options.supported_geom_fields:
                     raise FeatureConfigurationError("%s does not support %s geometry types (only %r)" %
@@ -814,6 +818,7 @@ def groups_users_sharing_with(user, include_public=False):
             if group.name in settings.SHARING_TO_STAFF_GROUPS and not user.is_staff:
                 continue
             group_objects = shared_objects.filter(sharing_groups=group)
+            
             user_list = []
             for gobj in group_objects:
                 if gobj.user not in user_list and gobj.user != user:

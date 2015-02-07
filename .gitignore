@@ -1,2 +1,5 @@
 madrona_features.egg-info
 *.pyc
+.idea
+htmlcov
+.coverage
