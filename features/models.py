@@ -185,6 +185,11 @@ class Feature(models.Model):
         if collection:
             collection.save(rerun=True)
 
+    def unshare_with(self, group):
+        """If the object is shared with group, remove it.
+        """
+        self.sharing_groups.remove(group)
+
     def share_with(self, groups, append=False):
         """
         Share this feature with the specified group/groups.
