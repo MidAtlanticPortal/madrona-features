@@ -33,17 +33,17 @@ class Feature(models.Model):
 
         ``date_modified``       When it was last updated.
         ======================  ==============================================
-    """   
+    """
     user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related")
     name = models.CharField(verbose_name="Name", max_length="255")
-    date_created = models.DateTimeField(auto_now_add=True, 
+    date_created = models.DateTimeField(auto_now_add=True,
             verbose_name="Date Created")
-    date_modified = models.DateTimeField(auto_now=True, 
+    date_modified = models.DateTimeField(auto_now=True,
             verbose_name="Date Modified")
     sharing_groups = models.ManyToManyField(Group,editable=False,blank=True,
-            null=True,verbose_name="Share with the following groups", 
+            null=True,verbose_name="Share with the following groups",
             related_name="%(app_label)s_%(class)s_related")
-    content_type = models.ForeignKey(ContentType, blank=True, null=True, 
+    content_type = models.ForeignKey(ContentType, blank=True, null=True,
             related_name="%(app_label)s_%(class)s_related")
     object_id = models.PositiveIntegerField(blank=True,null=True)
     collection = generic.GenericForeignKey('content_type', 'object_id')
@@ -60,8 +60,8 @@ class Feature(models.Model):
         abstract = True
 
     '''
-    Note on keyword args rerun and form: These are extracted from kwargs so that they will not cause an unexpected 
-    keyword argument error during call to super.save.  (They are used in the Analysis model save method, but become 
+    Note on keyword args rerun and form: These are extracted from kwargs so that they will not cause an unexpected
+    keyword argument error during call to super.save.  (They are used in the Analysis model save method, but become
     superfluous here.)
     '''
     def save(self, rerun=True, form=None, *args, **kwargs):
@@ -87,17 +87,17 @@ class Feature(models.Model):
         """
         Specifies the CSS for representing features in kmltree, specifically the icon
         Works one of two ways:
-        1. Use the icon_url Option and this default css() classmethod 
+        1. Use the icon_url Option and this default css() classmethod
         2. Override the css() classmethod for more complex cases
         """
         url = klass.get_options().icon_url
         if url:
             if not url.startswith("/") and not url.startswith("http://"):
                 url = settings.MEDIA_URL + url
-            return """ li.%s > .icon { 
-            background: url("%s") no-repeat scroll 0 0 transparent ! important; 
+            return """ li.%s > .icon {
+            background: url("%s") no-repeat scroll 0 0 transparent ! important;
             display:inline ! important;
-            } 
+            }
 
             div.%s > .goog-menuitem-content {
                 background: url("%s") no-repeat scroll 0 0 transparent !important;
@@ -123,9 +123,9 @@ class Feature(models.Model):
     @property
     def hash(self):
         """
-        For caching. This string represents a hash of all 
-        attributes that may influence reporting results. 
-        i.e. if this property changes, reports for the feature get rerun. 
+        For caching. This string represents a hash of all
+        attributes that may influence reporting results.
+        i.e. if this property changes, reports for the feature get rerun.
         """
         important = "%s%s" % (self.date_modified, self.uid)
         return important.__hash__()
@@ -144,7 +144,7 @@ class Feature(models.Model):
     def kml_safe(self):
         """
         A safety valve for kmlapp...
-        If one feature's .kml  property fails, 
+        If one feature's .kml  property fails,
         it won't bring down the entire request.
         This property is never to be overridden!
         """
@@ -216,7 +216,7 @@ class Feature(models.Model):
             try:
                 gp = group.permissions.get(codename='can_share_features')
             except:
-                raise Exception("The group you are trying to share with "  
+                raise Exception("The group you are trying to share with "
                         "does not have can_share permission")
 
             self.sharing_groups.add(group)
@@ -225,8 +225,8 @@ class Feature(models.Model):
         return True
 
     def is_viewable(self, user):
-        """ 
-        Is this feauture viewable by the specified user? 
+        """
+        Is this feauture viewable by the specified user?
         Either needs to own it or have it shared with them.
         returns : Viewable(boolean), HttpResponse
         """
@@ -244,7 +244,7 @@ class Feature(models.Model):
             return True, HttpResponse("Object owned by user",status=202)
 
         # Next see if its shared with the user
-        try: 
+        try:
             # Instead having the sharing logic here, use the shared_with_user
             # We need it to return querysets so no sense repeating that logic
             obj = self.__class__.objects.shared_with_user(user).get(pk=self.pk)
@@ -252,11 +252,11 @@ class Feature(models.Model):
         except self.__class__.DoesNotExist:
             return False, HttpResponse("Access denied", status=403)
 
-        return False, HttpResponse("Server Error in feature.is_viewable()", status=500) 
+        return False, HttpResponse("Server Error in feature.is_viewable()", status=500)
 
     def copy(self, user=None):
         """
-        Returns a copy of this feature, setting the user to the specified 
+        Returns a copy of this feature, setting the user to the specified
         owner. Copies many-to-many relations
         """
         # Took this code almost verbatim from the mpa model code.
@@ -270,9 +270,9 @@ class Feature(models.Model):
         for f in the_feature._meta.many_to_many:
             m2m[f.name] = the_feature.__getattribute__(f.name).all()
 
-        # The black magic voodoo way, 
-        # makes a copy but relies on this strange implementation detail of 
-        # setting the pk & id to null 
+        # The black magic voodoo way,
+        # makes a copy but relies on this strange implementation detail of
+        # setting the pk & id to null
         # An alternate, more explicit way, can be seen at:
         # http://blog.elsdoerfer.name/2008/09/09/making-a-copy-of-a-model-instance
         the_feature.pk = None
@@ -289,7 +289,7 @@ class Feature(models.Model):
         # Reassign User
         the_feature.user = user
 
-        # Clear everything else 
+        # Clear everything else
         the_feature.sharing_groups.clear()
         the_feature.remove_from_collection()
 
@@ -298,7 +298,7 @@ class Feature(models.Model):
 
 class SpatialFeature(Feature):
     """
-    Abstract Model used for representing user-generated geometry features. 
+    Abstract Model used for representing user-generated geometry features.
     Inherits from Feature and adds geometry-related methods/properties
     common to all geometry types.
 
@@ -316,7 +316,7 @@ class SpatialFeature(Feature):
         ``manipulators``        List of manipulators to be applied when geom
                                 is saved.
         ======================  ==============================================
-    """   
+    """
     manipulators = models.TextField(verbose_name="Manipulator List", null=True,
             blank=True, help_text='csv list of manipulators to be applied')
 
@@ -352,7 +352,7 @@ class SpatialFeature(Feature):
     def kml(self):
         """
         Fully-styled KML placemark representation of the feature.
-        The Feature's kml property MUST 
+        The Feature's kml property MUST
           - return a string containing a valid KML placemark element
           - the placemark must have id= [the feature's uid]
           - if it references any style URLs, the corresponding Style element(s)
@@ -368,10 +368,10 @@ class SpatialFeature(Feature):
                 <Data name="user"><value>%s</value></Data>
                 <Data name="modified"><value>%s</value></Data>
             </ExtendedData>
-            %s 
+            %s
         </Placemark>
-        """ % (self.uid, self.name, self.model_uid(), 
-               self.name, self.user, self.date_modified, 
+        """ % (self.uid, self.name, self.model_uid(),
+               self.name, self.user, self.date_modified,
                self.geom_kml)
 
     @property
@@ -380,7 +380,7 @@ class SpatialFeature(Feature):
         Must return a string with one or more KML Style elements
         whose id's may be referenced by relative URL
         from within the feature's .kml string
-        In any given KML document, each *unique* kml_style string will get included 
+        In any given KML document, each *unique* kml_style string will get included
         so don't worry if you have 10 million features with "blah-default" style...
         only one will appear in the final document and all the placemarks can refer
         to it. BEST TO TREAT THIS LIKE A CLASS METHOD - no instance specific vars.
@@ -391,7 +391,7 @@ class SpatialFeature(Feature):
             <IconStyle>
                 <color>ffffffff</color>
                 <colorMode>normal</colorMode>
-                <scale>0.9</scale> 
+                <scale>0.9</scale>
                 <Icon> <href>http://maps.google.com/mapfiles/kml/paddle/wht-blank.png</href> </Icon>
             </IconStyle>
             <BalloonStyle>
@@ -419,7 +419,7 @@ class SpatialFeature(Feature):
         """
         This method contains all the logic to determine which manipulators get applied to a feature
 
-        If self.manipulators doesnt exist or is null or blank, 
+        If self.manipulators doesnt exist or is null or blank,
            apply the required manipulators (or the NullManipulator if none are required)
 
         If there is a self.manipulators string and there are optional manipulators contained in it,
@@ -432,7 +432,7 @@ class SpatialFeature(Feature):
                 # list is blank
                 manipulator_list = []
         except AttributeError:
-            manipulator_list = [] 
+            manipulator_list = []
 
         required = self.options.manipulators
         try:
@@ -447,7 +447,7 @@ class SpatialFeature(Feature):
             if not required or len(required) < 1:
                 manipulator_list = ['NullManipulator']
             else:
-                return active 
+                return active
 
         # include all valid manipulators from the self.manipulators list
         for manipulator in manipulator_list:
@@ -478,6 +478,27 @@ class SpatialFeature(Feature):
             else:
                 raise Exception('Could not pre-process geometry')
 
+"""
+Doesn't discriminate between polygon and multipolygon in case you want to handle both
+"""
+class GeometryFeature(SpatialFeature):
+    geometry_orig = models.GeometryField(srid=settings.GEOMETRY_DB_SRID,
+            null=True, blank=True, verbose_name="Original Polygon Geometry")
+    geometry_final = models.GeometryField(srid=settings.GEOMETRY_DB_SRID,
+            null=True, blank=True, verbose_name="Final Polygon Geometry")
+
+    @property
+    def centroid_kml(self):
+        """
+        KML geometry representation of the centroid of the polygon
+        """
+        geom = self.geometry_final.point_on_surface.transform(settings.GEOMETRY_CLIENT_SRID, clone=True)
+        return geom.kml
+
+
+    class Meta(Feature.Meta):
+        abstract = True
+
 class PolygonFeature(SpatialFeature):
     """
     Model used for representing user-generated polygon features. Inherits from SpatialFeature.
@@ -500,11 +521,11 @@ class PolygonFeature(SpatialFeature):
 
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
-    """   
-    
+    """
+
     geometry_orig = models.PolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original Polygon Geometry")
-    geometry_final = models.PolygonField(srid=GEOMETRY_DB_SRID, 
+    geometry_final = models.PolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final Polygon Geometry")
 
     @property
@@ -534,7 +555,7 @@ class PolygonFeature(SpatialFeature):
 class MultiPolygonFeature(SpatialFeature):
     geometry_orig = models.MultiPolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original Polygon Geometry")
-    geometry_final = models.MultiPolygonField(srid=GEOMETRY_DB_SRID, 
+    geometry_final = models.MultiPolygonField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final Polygon Geometry")
 
     @property
@@ -583,10 +604,10 @@ class LineFeature(SpatialFeature):
 
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
-    """   
-    geometry_orig = models.LineStringField(srid=GEOMETRY_DB_SRID, 
+    """
+    geometry_orig = models.LineStringField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original LineString Geometry")
-    geometry_final = models.LineStringField(srid=GEOMETRY_DB_SRID, 
+    geometry_final = models.LineStringField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final LineString Geometry")
 
 #     @classmethod
@@ -624,10 +645,10 @@ class PointFeature(SpatialFeature):
 
         ``geometry_final``      Geometry after manipulators are applied.
         ======================  ==============================================
-    """   
-    geometry_orig = models.PointField(srid=GEOMETRY_DB_SRID, 
+    """
+    geometry_orig = models.PointField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Original Point Geometry")
-    geometry_final = models.PointField(srid=GEOMETRY_DB_SRID, 
+    geometry_final = models.PointField(srid=GEOMETRY_DB_SRID,
             null=True, blank=True, verbose_name="Final Point Geometry")
 
 #     @classmethod
@@ -713,7 +734,7 @@ class FeatureCollection(Feature):
             if feature_classes and model_class not in feature_classes:
                 continue
 
-            feature_list = list( 
+            feature_list = list(
                 model_class.objects.filter(
                     content_type=ContentType.objects.get_for_model(self),
                     object_id=self.pk
@@ -727,7 +748,7 @@ class FeatureCollection(Feature):
 
     def copy(self, user=None):
         """
-        Returns a copy of this feature collection, setting the user to the specified 
+        Returns a copy of this feature collection, setting the user to the specified
         owner. Recursively copies all children.
         """
         original_feature_set = self.feature_set(recurse=False)
@@ -739,8 +760,8 @@ class FeatureCollection(Feature):
         for f in the_collection._meta.many_to_many:
             m2m[f.name] = the_collection.__getattribute__(f.name).all()
 
-        # makes a copy but relies on this strange implementation detail of 
-        # setting the pk & id to null 
+        # makes a copy but relies on this strange implementation detail of
+        # setting the pk & id to null
         the_collection.pk = None
         the_collection.id = None
         the_collection.save()
@@ -755,7 +776,7 @@ class FeatureCollection(Feature):
         # Reassign User
         the_collection.user = user
 
-        # Clear everything else 
+        # Clear everything else
         the_collection.sharing_groups.clear()
         the_collection.remove_from_collection()
         the_collection.save()
