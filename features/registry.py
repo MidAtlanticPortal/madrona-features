@@ -230,7 +230,7 @@ not a string path." % (name,))
                 # chain (too bad we're not Py3k)
                 t, v, tb = sys.exc_info()
                 s = "Error trying to import module %s" % m
-                raise FeatureConfigurationError, (s, t, v), tb
+                raise FeatureConfigurationError(s, t, v, tb)
 
             # Test that manipulator is compatible with this Feature Class
             geom_field = self._model.geometry_final._field.__class__.__name__
