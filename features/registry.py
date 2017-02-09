@@ -20,12 +20,12 @@ logger = logging.getLogger('features')
 
 
 # functions brought from madrona.common.utils so we don't have a dependency
-# on that module anymore. 
+# on that module anymore.
 # TODO: Refactor so they don't import modules
- 
+
 def enable_sharing(group=None):
     """
-    Give group permission to share models 
+    Give group permission to share models
     Permissions are attached to models but we want this perm to be 'global'
     Fake it by attaching the perm to the Group model (from the auth app)
     We check for this perm like: user1.has_perm("auth.can_share_features")
@@ -67,8 +67,8 @@ class FeatureConfigurationError(Exception):
 class FeatureOptions:
     """
     Represents properties of Feature Classes derived from both defaults and
-    developer-specified options within the Options inner-class. These 
-    properties drive the features of the spatial content managment system, 
+    developer-specified options within the Options inner-class. These
+    properties drive the features of the spatial content managment system,
     such as CRUD operations, copy, sharing, etc.
 
     """
@@ -225,7 +225,7 @@ not a string path." % (name,))
         for m in manipulators:
             try:
                 manip = get_class(m)
-            except Exception, e:
+            except Exception as e:
                 # Don't lose the original exception, fake a PEP3134 exception
                 # chain (too bad we're not Py3k)
                 t, v, tb = sys.exc_info()
@@ -287,7 +287,7 @@ not a string path." % (name,))
         Returns the template used to render this Feature Class' attributes
         """
         # Grab a template specified in the Options object, or use the default
-        template = getattr(self._options, 'show_template', 
+        template = getattr(self._options, 'show_template',
             '%s/show.html' % (self.slug, ))
         try:
             t = loader.get_template(template)
@@ -318,12 +318,12 @@ not a string path." % (name,))
                 vc_class = get_class(vc)
             except:
                 raise FeatureConfigurationError(
-                        "Error trying to import module %s" % vc) 
+                        "Error trying to import module %s" % vc)
 
             from features.models import Feature
             if not issubclass(vc_class, Feature):
                 raise FeatureConfigurationError(
-                        "%r is not a Feature; can't be a child" % vc) 
+                        "%r is not a Feature; can't be a child" % vc)
 
             valid_child_classes.append(vc_class)
 
@@ -332,8 +332,8 @@ not a string path." % (name,))
     def get_potential_parents(self):
         """
         It's not sufficient to look if this model is a valid_child of another
-        FeatureCollection; that collection could contain other collections 
-        that contain this model. 
+        FeatureCollection; that collection could contain other collections
+        that contain this model.
 
         Ex: Folder (only valid child is Array)
             Array (only valid child is MPA)
@@ -342,7 +342,7 @@ not a string path." % (name,))
         potential_parents = []
         direct_parents = []
         collection_models = get_collection_models()
-        for model in collection_models: 
+        for model in collection_models:
             opts = model.get_options()
             valid_children = opts.get_valid_children()
 
@@ -351,10 +351,10 @@ not a string path." % (name,))
                 potential_parents.append(model)
 
         for direct_parent in direct_parents:
-            if direct_parent != self._model: 
+            if direct_parent != self._model:
                 potential_parents.extend(direct_parent.get_options().get_potential_parents())
 
-        return potential_parents 
+        return potential_parents
 
     def get_form_class(self):
         """
@@ -362,18 +362,18 @@ not a string path." % (name,))
         """
         try:
             klass = get_class(self.form)
-        except Exception, e:
+        except Exception as e:
             raise (FeatureConfigurationError(
                 "Feature class %s is not configured with a valid form class. \
-Could not import %s.\n%s" % (self._model.__name__, self.form, e)), 
-                   None, 
+Could not import %s.\n%s" % (self._model.__name__, self.form, e)),
+                   None,
                 sys.exc_info()[2])
 
         if not issubclass(klass, FeatureForm):
             raise (FeatureConfigurationError(
                 "Feature class %s's form is not a subclass of \
-features.forms.FeatureForm." % (self._model.__name__, )), 
-                   None, 
+features.forms.FeatureForm." % (self._model.__name__, )),
+                   None,
                    sys.exc_info()[2])
 
         return klass
@@ -389,7 +389,7 @@ features.forms.FeatureForm." % (self._model.__name__, )),
             'title': self.verbose_name,
             'link-relations': {
                 'self': {
-                    'uri-template': reverse("%s_resource" % (self.slug, ), 
+                    'uri-template': reverse("%s_resource" % (self.slug, ),
                         args=[placeholder]).replace(placeholder, '{uid}'),
                     'title': settings.TITLES['self'],
                 },
@@ -404,11 +404,11 @@ features.forms.FeatureForm." % (self._model.__name__, )),
 
             lr['edit'] = [
                     {'title': 'Edit',
-                      'uri-template': reverse("%s_update_form" % (self.slug, ), 
+                      'uri-template': reverse("%s_update_form" % (self.slug, ),
                         args=[placeholder]).replace(placeholder, '{uid}')
                     },
                     {'title': 'Share',
-                      'uri-template': reverse("%s_share_form" % (self.slug, ), 
+                      'uri-template': reverse("%s_share_form" % (self.slug, ),
                         args=[placeholder]).replace(placeholder, '{uid}')
                     }]
 
@@ -423,11 +423,11 @@ features.forms.FeatureForm." % (self._model.__name__, )),
             link_rels['collection'] = {
                 'classes': [x.model_uid() for x in self.get_valid_children()],
                 'remove': {
-                    'uri-template': reverse("%s_remove_features" % (self.slug, ), 
+                    'uri-template': reverse("%s_remove_features" % (self.slug, ),
                         kwargs={'collection_uid':14,'uids':'xx'}).replace('14', '{collection_uid}').replace('xx','{uid+}')
                 },
                 'add': {
-                    'uri-template': reverse("%s_add_features" % (self.slug, ), 
+                    'uri-template': reverse("%s_add_features" % (self.slug, ),
                         kwargs={'collection_uid':14,'uids':'xx'}).replace('14', '{collection_uid}').replace('xx','{uid+}')
                 }
 
@@ -458,15 +458,15 @@ features.forms.FeatureForm." % (self._model.__name__, )),
 
     def get_resource(self, pk):
         """
-        Returns the primary url for a feature. This url supports GET, POST, 
+        Returns the primary url for a feature. This url supports GET, POST,
         and DELETE operations.
         """
         return reverse('%s_resource' % (self.slug, ), args=['%s_%d' % (self._model.model_uid(), pk)])
 
 class Link:
-    def __init__(self, rel, title, view, method='GET', select='single', 
-        type=None, slug=None, generic=False, models=None, extra_kwargs={}, 
-        confirm=False, edits_original=None, must_own=False, 
+    def __init__(self, rel, title, view, method='GET', select='single',
+        type=None, slug=None, generic=False, models=None, extra_kwargs={},
+        confirm=False, edits_original=None, must_own=False,
         limit_to_groups=None):
 
         self.rel = rel
@@ -494,7 +494,7 @@ class Link:
 
         self.method = method
         """
-        For rel=edit links, identifies whether a form should be requested or 
+        For rel=edit links, identifies whether a form should be requested or
         that url should just be POST'ed to.
         """
 
@@ -513,7 +513,7 @@ class Link:
         """
         Determines whether this link accepts requests with single or multiple
         instances of a feature class. Valid values are "single", "multiple",
-        "single multiple", and "multiple single". 
+        "single multiple", and "multiple single".
         """
 
         self.extra_kwargs = extra_kwargs
@@ -528,7 +528,7 @@ class Link:
 
         self.models = models
         """
-        List of feature classes that a this view can be applied to, if it is 
+        List of feature classes that a this view can be applied to, if it is
         generic.
         """
 
@@ -539,7 +539,7 @@ class Link:
 
         self.edits_original = edits_original
         """
-        Set to false for editing links that create a copy of the original. 
+        Set to false for editing links that create a copy of the original.
         This will allow users who do not own the instance(s) but can view them
         perform the action.
         """
@@ -550,13 +550,13 @@ class Link:
         """
         Whether this link should be accessible to non-owners.
         Default link behavior is False; i.e. Link can be used for shared features
-        as well as for user-owned features. 
+        as well as for user-owned features.
         If edits_original is true, this implies must_own = True as well.
         """
 
         self.limit_to_groups = limit_to_groups
         """
-        Allows you to specify groups (a list of group names) 
+        Allows you to specify groups (a list of group names)
         that should have access to the link.
         Default is None; i.e. All users have link access regardless of group membership
         """
@@ -567,7 +567,7 @@ class Link:
         # Make sure title isn't empty
         if self.title is '':
             raise FeatureConfigurationError('Link title is empty')
-        valid_options = ('single', 'multiple', 'single multiple', 
+        valid_options = ('single', 'multiple', 'single multiple',
             'multiple single')
         # Check for valid 'select' kwarg
         if self.select not in valid_options:
@@ -582,7 +582,7 @@ class Link:
 
     def _validate_view(self, view):
         """
-        Ensures view has a compatible signature to be able to hook into the 
+        Ensures view has a compatible signature to be able to hook into the
         features app url registration facilities
 
         For single-select views
@@ -590,7 +590,7 @@ class Link:
         For multiple-select views
             must accept a second argument named instances
 
-        Must also ensure that if the extra_kwargs option is specified, the 
+        Must also ensure that if the extra_kwargs option is specified, the
         view can handle them
         """
         # Check for instance or instances arguments
@@ -610,7 +610,7 @@ self.title, ))
 
     def can_user_view(self, user, is_owner):
         """
-        Returns True/False depending on whether user can view the link. 
+        Returns True/False depending on whether user can view the link.
         """
         if self.limit_to_groups:
             # We rely on the auth Group model ensuring unique group names
@@ -631,7 +631,7 @@ self.title, ))
     @property
     def url_name(self):
         """
-        Links are registered with named-urls. This function will return 
+        Links are registered with named-urls. This function will return
         that name so that it can be used in calls to reverse().
         """
         return "%s-%s" % (self.parent_slug, self.slug)
@@ -639,7 +639,7 @@ self.title, ))
     @property
     def parent_slug(self):
         """
-        Returns either the slug of the only model this view applies to, or 
+        Returns either the slug of the only model this view applies to, or
         'generic'
         """
         if len(self.models) == 1:
@@ -648,7 +648,7 @@ self.title, ))
             return 'generic-links'
 
     def reverse(self, instances):
-        """Can be used to get the url for this link. 
+        """Can be used to get the url for this link.
 
         In the case of select=single links, just pass in a single instance. In
         the case of select=multiple links, pass in an array.
@@ -669,7 +669,7 @@ self.title, ))
             'rel': self.rel,
             'title': self.title,
             'select': self.select,
-            'uri-template': reverse(self.url_name, 
+            'uri-template': reverse(self.url_name,
                 kwargs={'uids': 'idplaceholder'}).replace(
                     'idplaceholder', '{uid+}')
         }
@@ -688,7 +688,7 @@ def create_link(rel, *args, **kwargs):
     nargs = [rel]
     nargs.extend(args)
     link = Link(*nargs, **kwargs)
-    must_match = ('rel', 'title', 'view', 'extra_kwargs', 'method', 'slug', 
+    must_match = ('rel', 'title', 'view', 'extra_kwargs', 'method', 'slug',
         'select', 'must_own')
     for registered_link in registered_links:
         matches = True
@@ -760,10 +760,10 @@ def workspace_json(user, is_owner, models=None):
 
 def get_collection_models():
     """
-    Utility function returning models for 
+    Utility function returning models for
     registered and valid FeatureCollections
     """
-    from features.models import FeatureCollection    
+    from features.models import FeatureCollection
     registered_collections = []
     for model in registered_models:
         if issubclass(model,FeatureCollection):
@@ -777,7 +777,7 @@ def get_collection_models():
 
 def get_feature_models():
     """
-    Utility function returning models for 
+    Utility function returning models for
     registered and valid Features excluding Collections
     """
     from features.models import Feature, FeatureCollection
@@ -789,7 +789,7 @@ def get_feature_models():
 
 def user_sharing_groups(user):
     """
-    Returns a list of groups that user is member of and 
+    Returns a list of groups that user is member of and
     and group must have sharing permissions
     """
     try:
@@ -818,7 +818,7 @@ def groups_users_sharing_with(user, include_public=False):
             if group.name in settings.SHARING_TO_STAFF_GROUPS and not user.is_staff:
                 continue
             group_objects = shared_objects.filter(sharing_groups=group)
-            
+
             user_list = []
             for gobj in group_objects:
                 if gobj.user not in user_list and gobj.user != user:
