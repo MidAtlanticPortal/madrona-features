@@ -2,7 +2,6 @@ from django.contrib.gis.db import models
 from django.contrib.auth.models import User, Group
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.http import HttpResponse
 from django.utils.html import escape
 from .managers import ShareableGeoManager
@@ -34,8 +33,11 @@ class Feature(models.Model):
         ``date_modified``       When it was last updated.
         ======================  ==============================================
     """
+
+    from django.contrib.contenttypes.fields import GenericForeignKey
+
     user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related")
-    name = models.CharField(verbose_name="Name", max_length="255")
+    name = models.CharField(verbose_name="Name", max_length=255)
     date_created = models.DateTimeField(auto_now_add=True,
             verbose_name="Date Created")
     date_modified = models.DateTimeField(auto_now=True,
@@ -46,7 +48,7 @@ class Feature(models.Model):
     content_type = models.ForeignKey(ContentType, blank=True, null=True,
             related_name="%(app_label)s_%(class)s_related")
     object_id = models.PositiveIntegerField(blank=True,null=True)
-    collection = generic.GenericForeignKey('content_type', 'object_id')
+    collection = GenericForeignKey('content_type', 'object_id')
 
     objects = ShareableGeoManager()
 
