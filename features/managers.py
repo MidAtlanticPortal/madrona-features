@@ -1,8 +1,9 @@
 from django.contrib.gis.db import models
 from django.contrib.auth.models import Group, Permission
 from django.conf import settings
+from django.db.models import Manager as GeoManager
 
-class ShareableGeoManager(models.GeoManager):
+class ShareableGeoManager(GeoManager):
     def shared_with_user(self, user, filter_groups=None, exclude_models=None):
         """
         Returns a queryset containing any objects that have been

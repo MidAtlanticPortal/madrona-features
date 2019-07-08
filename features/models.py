@@ -11,6 +11,7 @@ from manipulators.geometry import ensure_clean
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
+from django.urls import reverse
 # import mapnik
 
 logger = logging.getLogger('features.models')
@@ -74,11 +75,12 @@ class Feature(models.Model):
         if form is not None:
             form.save_m2m()
 
-    @models.permalink
+    # django 2.0 compatibility update - attempting this: https://docs.djangoproject.com/en/2.1/releases/1.11/#deprecated-features-1-11
+    #       -- RDH 7/8/2019
+    # @models.permalink
     def get_absolute_url(self):
-        return ('%s_resource' % (self.get_options().slug, ), (), {
-            'uid': self.uid
-        })
+        # return ('%s_resource' % (self.get_options().slug, ), (), {'uid': self.uid})
+        return reverse('%s_resource' % (self.get_options().slug, ), args=[(), {'uid': self.uid}])
 
     @classmethod
     def get_options(klass):
