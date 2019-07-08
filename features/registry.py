@@ -2,7 +2,7 @@ import logging
 from django.template.defaultfilters import slugify
 from django.template import loader, TemplateDoesNotExist
 from features.forms import FeatureForm
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save, class_prepared
 from django.dispatch import receiver
