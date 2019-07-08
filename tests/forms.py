@@ -1,4 +1,4 @@
-from models import TestNoGeoJSON, TestMpa, TestForGeoJSON, \
+from .models import TestNoGeoJSON, TestMpa, TestForGeoJSON, \
     TestNoGeomFinal, TestGetFormClassFeature, CreateFormTestFeature, \
     CreateTestFeature, UpdateFormTestFeature, Pipeline, LinkTestFeature, \
     RenewableEnergySite, UpdateTestFeature, GenericLinksTestFeature, \

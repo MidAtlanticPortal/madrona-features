@@ -14,14 +14,14 @@ import shutil
 import json
 from django.test.client import Client
 from django.contrib.auth.models import *
-from forms import TestFeatureForm
+from .forms import TestFeatureForm
 
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 
-from models import TestMpa, TestForGeoJSON, TestNoGeomFinal, TestNoGeoJSON, \
+from .models import TestMpa, TestForGeoJSON, TestNoGeomFinal, TestNoGeoJSON, \
     MockMultiPoly, TestSlugFeature, TestDefaultVerboseNameFeature, \
     TestCustomVerboseNameFeature, TestDefaultShowTemplateFeature, \
     TestCustomShowTemplateFeature, TestMissingDefaultShowFeature, \
