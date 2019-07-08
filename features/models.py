@@ -36,7 +36,9 @@ class Feature(models.Model):
 
     from django.contrib.contenttypes.fields import GenericForeignKey
 
-    user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related")
+    user = models.ForeignKey(User,
+            related_name="%(app_label)s_%(class)s_related",
+            on_delete=models.CASCADE)
     name = models.CharField(verbose_name="Name", max_length=255)
     date_created = models.DateTimeField(auto_now_add=True,
             verbose_name="Date Created")
@@ -46,7 +48,8 @@ class Feature(models.Model):
             null=True,verbose_name="Share with the following groups",
             related_name="%(app_label)s_%(class)s_related")
     content_type = models.ForeignKey(ContentType, blank=True, null=True,
-            related_name="%(app_label)s_%(class)s_related")
+            related_name="%(app_label)s_%(class)s_related",
+            on_delete=models.SET_NULL)
     object_id = models.PositiveIntegerField(blank=True,null=True)
     collection = GenericForeignKey('content_type', 'object_id')
 
