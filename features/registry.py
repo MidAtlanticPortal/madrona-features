@@ -36,7 +36,7 @@ def enable_sharing(group=None):
     try:
         p = Permission.objects.get(codename='can_share_features')
     except Permission.DoesNotExist:
-        gct = ContentType.objects.get(name="group")
+        gct = ContentType.objects.get(model="group")
         p = Permission.objects.create(codename='can_share_features',name='Can Share Features',content_type=gct)
         p.save()
 
