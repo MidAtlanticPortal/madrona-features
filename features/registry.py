@@ -225,12 +225,17 @@ not a string path." % (name,))
         for m in manipulators:
             try:
                 manip = get_class(m)
-            except Exception, e:
+            except Exception as e:
                 # Don't lose the original exception, fake a PEP3134 exception
                 # chain (too bad we're not Py3k)
                 t, v, tb = sys.exc_info()
                 s = "Error trying to import module %s" % m
-                raise FeatureConfigurationError, (s, t, v), tb
+                # raise FeatureConfigurationError, (s, t, v), tb
+                e = FeatureConfigurationError(s)
+                e.__type__ = t
+                e.__value__ = v
+                e.__traceback__ = tb
+                raise e
 
             # Test that manipulator is compatible with this Feature Class
             geom_field = self._model.geometry_final._field.__class__.__name__
@@ -362,7 +367,7 @@ not a string path." % (name,))
         """
         try:
             klass = get_class(self.form)
-        except Exception, e:
+        except Exception as e:
             raise (FeatureConfigurationError(
                 "Feature class %s is not configured with a valid form class. \
 Could not import %s.\n%s" % (self._model.__name__, self.form, e)),

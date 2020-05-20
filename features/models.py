@@ -157,7 +157,7 @@ class Feature(models.Model):
                 logger.error("%s .kml property is failing: \n%s\n" % (self.uid,e.message))
             except:
                 # just in case logging or the uid property are fubar
-                print ".kml is failing on something"
+                print(".kml is failing on something")
             # Create a fallback KML placemark so it doesn't just disappear
             return """
             <Placemark id="%s">
