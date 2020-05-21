@@ -1,6 +1,6 @@
 try:
     from django.urls import re_path
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     from django.conf.urls import url as re_path
 from . import views
 

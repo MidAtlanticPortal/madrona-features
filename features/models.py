@@ -13,7 +13,7 @@ from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
 try:
     from django.urls import reverse
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     from django.core.urlresolvers import reverse
 # import mapnik
 

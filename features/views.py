@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.gdal import DataSource
 try:
     from django.urls import reverse
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render_to_response
