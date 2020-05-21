@@ -36,7 +36,7 @@ def enable_sharing(group=None):
     try:
         p = Permission.objects.get(codename='can_share_features')
     except Permission.DoesNotExist:
-        gct = ContentType.objects.get(name="group")
+        gct = ContentType.objects.get(model="group")
         p = Permission.objects.create(codename='can_share_features',name='Can Share Features',content_type=gct)
         p.save()
 
@@ -231,7 +231,11 @@ not a string path." % (name,))
                 t, v, tb = sys.exc_info()
                 s = "Error trying to import module %s" % m
                 # raise FeatureConfigurationError, (s, t, v), tb
-                raise FeatureConfigurationError(s)
+                e = FeatureConfigurationError(s)
+                e.__type__ = t
+                e.__value__ = v
+                e.__traceback__ = tb
+                raise e
 
             # Test that manipulator is compatible with this Feature Class
             geom_field = self._model.geometry_final._field.__class__.__name__
