@@ -1,5 +1,7 @@
-# from django.conf.urls import url
-from django.urls import re_path, include
+try:
+    from django.urls import re_path
+except ModuleNotFoundError:
+    from django.conf.urls import url as re_path
 from . import views
 
 from features.registry import registered_models, registered_links

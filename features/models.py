@@ -11,7 +11,10 @@ from manipulators.geometry import ensure_clean
 import logging
 from manipulators.manipulators import manipulatorsDict, NullManipulator
 import re
-from django.urls import reverse
+try:
+    from django.urls import reverse
+except ModuleNotFoundError:
+    from django.core.urlresolvers import reverse
 # import mapnik
 
 logger = logging.getLogger('features.models')
