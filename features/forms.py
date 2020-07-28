@@ -5,10 +5,10 @@ from django.forms import ModelForm
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.gis.geos import fromstr
-from django.conf import settings 
+from django.conf import settings
 
 class ShapeInput(forms.HiddenInput):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         from manipulators.manipulators import display_kml
         from features.models import PolygonFeature, PointFeature, LineFeature
         model = self.form_instance.Meta.model
@@ -52,4 +52,3 @@ class SpatialFeatureForm(FeatureForm):
         super(SpatialFeatureForm, self).__init__(*args, **kwargs)
         self.fields['geometry_final'].widget.form_instance = self
         self.fields['geometry_orig'].widget.form_instance = self
-

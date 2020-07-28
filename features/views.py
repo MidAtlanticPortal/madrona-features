@@ -14,7 +14,7 @@ try:
 except (ModuleNotFoundError, ImportError):
     from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseForbidden
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template import RequestContext, Context
 from django.template import loader, TemplateDoesNotExist
 from django.template.defaultfilters import slugify
@@ -299,7 +299,7 @@ def create_form(request, model, action=None):
             'user': user,
         })
         context = decorate_with_manipulators(context, form_class)
-        return render_to_response(config.form_template, context)
+        return render(request, config.form_template, context)
     else:
         return HttpResponse('Invalid http method', status=405)
 
@@ -338,7 +338,7 @@ def update_form(request, model, uid):
             'user': user,
         })
         context = decorate_with_manipulators(context, form_class)
-        return render_to_response(config.form_template, context)
+        return render(request, config.form_template, context)
     else:
         return HttpResponse('Invalid http method', status=405)
 
@@ -681,7 +681,7 @@ def share_form(request,model=None, uid=None):
         # Get a list of user's groups that have sharing permissions
         groups = user_sharing_groups(request.user)
 
-        return render_to_response('sharing/share_form.html', {'groups': groups,
+        return render(request, 'sharing/share_form.html', {'groups': groups,
             'already_shared_groups': already_shared_groups, 'obj': obj,
             'obj_type_verbose': obj_type_verbose,  'user':request.user,
             'MEDIA_URL': settings.MEDIA_URL,
