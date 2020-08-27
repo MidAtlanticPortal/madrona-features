@@ -820,7 +820,7 @@ def to_response(status=200, select=None, show=None, parent=None,
     return response
 
 def to_csv(features):
-    if not features or isinstance(features, unicode):
+    if not features or isinstance(features, str):
         return features
     elif isinstance(features, Feature):
         return features.uid

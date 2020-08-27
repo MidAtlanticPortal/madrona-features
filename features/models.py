@@ -83,7 +83,7 @@ class Feature(models.Model):
     # @models.permalink
     def get_absolute_url(self):
         # return ('%s_resource' % (self.get_options().slug, ), (), {'uid': self.uid})
-        return reverse('%s_resource' % (self.get_options().slug, ), args=[(), {'uid': self.uid}])
+        return reverse('%s_resource' % (self.get_options().slug, ), kwargs={'uid': self.uid})
 
     @classmethod
     def get_options(klass):
