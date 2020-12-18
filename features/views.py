@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.gdal import DataSource
+from django.urls.exceptions import NoReverseMatch
 try:
     from django.urls import reverse
 except (ModuleNotFoundError, ImportError):
@@ -266,9 +267,7 @@ def create(request, model, action):
                 'user': user,
             })
             context = decorate_with_manipulators(context, form_class)
-            c = RequestContext(request, context)
-            t = loader.get_template(config.form_template)
-            return HttpResponse(t.render(c), status=400)
+            return render(request, config.form_template, context, status=400)
     else:
         return HttpResponse('Invalid http method', status=405)
 
@@ -408,9 +407,7 @@ def update(request, model, uid):
                 'is_collection': issubclass(model, FeatureCollection),
             })
             context = decorate_with_manipulators(context, form_class)
-            c = RequestContext(request, context)
-            t = loader.get_template(config.form_template)
-            return HttpResponse(t.render(c), status=400)
+            return render(request, config.form_template, context, status=400)
     else:
         return HttpResponse("""Invalid http method.
         Yes we know, PUT is supposed to be used rather than POST,
@@ -454,10 +451,13 @@ def resource(request, model=None, uid=None):
             'instance': instance,
             'MEDIA_URL': settings.MEDIA_URL,
             'is_ajax': request.is_ajax(),
-            'template': t.name,
+            'template': t.template.name,
         })
 
-        return HttpResponse(t.render(RequestContext(request, context)))
+        try:
+            return render(request, t.template.name, context, status=400)
+        except NoReverseMatch as e:
+            return HttpResponse("Unable to complete request", status=400)
     elif request.method == 'POST':
         return update(request, model, uid)
 
@@ -623,7 +623,7 @@ def kml_core(request, instances, kmz):
     styles = []
 
     t = get_template('kmlapp/myshapes.kml')
-    context = Context({
+    context = {
                 'user': user,
                 'features': features,
                 'collections': collections,
@@ -634,8 +634,8 @@ def kml_core(request, instances, kmz):
                 'shareuser': None,
                 'sharegroup': None,
                 'feature_id': None,
-                })
-    kml = t.render(context)
+                }
+    kml = render(request, t.template.name, context)
     response = HttpResponse()
     filename = '_'.join([slugify(i.name) for i in instances])
 
